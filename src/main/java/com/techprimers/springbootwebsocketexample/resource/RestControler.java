@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+
 @RestController
 @RequestMapping("rest")
 public class RestControler {
@@ -26,13 +28,13 @@ public class RestControler {
     @RequestMapping(value = "/addSensorH11", params = { "name_temp", "valuee_temp", "name_hum",
             "valuee_hum" }, method = RequestMethod.POST)
     public String gameHandler3(@RequestParam("name_temp") String name_temp,
-                               @RequestParam("valuee_temp") double valuee_temp, @RequestParam("name_hum") String name_hum,
+                               @RequestParam("valuee_temp") double valuee_temp,
+                               @RequestParam("name_hum") String name_hum,
                                @RequestParam("valuee_hum") double valuee_hum) {
 
         Sensor_h11 newdata = null;
         String createBy = "From  module ESP 32";
         int i;
-
         try {
 
             float sal_temp = (float) valuee_temp;
@@ -43,14 +45,9 @@ public class RestControler {
                 newdata = serviceH11.addSensorh11(name_temp, sal_temp, name_hum, sal_hum, createBy);
                 testrepositoryh11.save(newdata);
 
-                StringBuilder sb = new StringBuilder(newdata.getName_hum()+"---");
-                sb.append(String.valueOf(newdata.getValuee_hum()));
-
-                template.convertAndSend("/topic/user", new UserResponse(sb.toString() ));
+                template.convertAndSend("/topic/user", new UserResponse(newdata.getValuee_hum(),new Date(), newdata.getValuee_temp() ));
 
                 return null;
-               // return "<html><body><h1>This record  was added</h1><p>" + newdata.toString() + "</p></body></html>";
-
             }
 
         } catch (Exception e) {
